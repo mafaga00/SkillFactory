@@ -1,32 +1,31 @@
-from config import keys
+from config import currencies
 import requests
 import json
 
-class ExtensionException(Exception):
+class APIException(Exception):
     pass
 
-class Extensions:
+class BotExtensions:
     @staticmethod
-    def get_price(quote: str, base: str, amount: str):
+    def get_price(values):
+        if len(values) != 3:
+            raise APIException("Неверное количество параметров")
+        quote, base, amount = values
         if quote == base:
-            raise ExtensionException(f'Нельзя перевести одинаковые валюты {base}.')
-
+            raise APIException(f"Вы ввели одинаковые валюты: {base}")
         try:
-            quote_ticker = keys[quote]
+            quote_formated = currencies[quote]
         except KeyError:
-            raise ExtensionException(f'Не смог обработать валюту {quote}')
-
+            raise APIException(f"Такая валюта не поддерживается: {quote}")
         try:
-            base_ticker = keys[base]
+            base_formated = currencies[base]
         except KeyError:
-            raise ExtensionException(f'Не смог обработать валюту {base}')
-
+            raise APIException(f"Такая валюта не поддерживается: {base}")
         try:
-            amount = float(amount)
+            amount = abs(float(amount.replace(',', '.')))
         except ValueError:
-            raise ExtensionException(f'Не удалось обработать количество {amount}')
+            raise APIException(f"Не корректно введено количество валюты: {amount}")
 
-        r = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_ticker}&tsyms={base_ticker}')
-        total_base = json.loads(r.content)[keys[base]]
-        return total_base * amount
-
+        html = requests.get(f'https://min-api.cryptocompare.com/data/price?fsym={quote_formated}&tsyms={base_formated}')
+        result = (json.loads(html.content)[base_formated])
+        return result * amount
