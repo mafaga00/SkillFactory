@@ -241,7 +241,7 @@ def test_add_pet_with_special_characters_in_variable_animal_type(name='Кот в
 
 
 @pytest.mark.xfail
-def test_add_pet_with_numbers_in_variable_name(name='12345678', animal_type='Кот', age='2',
+def test_add_pet_with_numbers_in_variable_name(name='Кот2', animal_type='Кот', age='2',
                                                pet_photo='images/cat1.jpg'):
     """Добавление питомца с цифрами вместо букв в переменной name.
     Тест не будет пройден если питомец будет добавлен на сайт с цифрами вместо букв в поле имени."""
