@@ -63,7 +63,7 @@ def test_add_new_pet_simple_with_valid_data(name='Барсик', animal_type='К
     assert result['name'] == name
 
 
-def test_successful_delete_self_pet():
+def test_delete_self_pet():
     """Проверяем возможность удаления питомца"""
 
     # Получаем ключ auth_key и запрашиваем список своих питомцев
@@ -87,7 +87,7 @@ def test_successful_delete_self_pet():
     assert pet_id not in my_pets.values()
 
 
-def test_successful_update_self_pet_info(name='Мурзик', animal_type='Котэ', age=5):
+def test_update_self_pet_info(name='Мурзик', animal_type='Котэ', age=5):
     """Проверяем возможность обновления информации о питомце"""
 
     # Получаем ключ auth_key и список своих питомцев
@@ -106,7 +106,7 @@ def test_successful_update_self_pet_info(name='Мурзик', animal_type='Ко�
         raise Exception("There is no my pets")
 
 
-def test_successful_update_self_pet_photo(pet_photo='images/squirrel.jpg'):
+def test_update_self_pet_photo(pet_photo='images/squirrel.jpg'):
     """Проверяем возможность обновления фотографии питомца"""
 
     # Получаем ключ auth_key и список своих питомцев
@@ -185,7 +185,7 @@ def test_get_all_my_pets_with_valid_key(filter='my_pets'):
 
 
 @pytest.mark.xfail
-def test_add_pet_with_empty_value_in_variable_name(name='', animal_type='cat', age='2', pet_photo='images/cat1.jpg'):
+def test_add_pet_with_empty_value_in_name(name='', animal_type='cat', age='2', pet_photo='images/cat1.jpg'):
     """Проверяем возможность добавления питомца с пустым значением в переменной name.
     Тест не будет пройден если питомец будет добавлен на сайт с пустым значением в поле 'имя'"""
 
@@ -221,8 +221,8 @@ def test_add_pet_with_negative_age(name='Котик', age="-3", animal_type='cat
 
 
 @pytest.mark.xfail
-def test_add_pet_with_special_characters_in_variable_animal_type(name='Кот в сапогах', age='2', animal_type='Кот?!@',
-                                                                 pet_photo='images/cat1.jpg'):
+def test_add_pet_with_special_characters_in_animal_type(name='Кот в сапогах', age='2', animal_type='Кот?!@',
+                                                        pet_photo='images/cat1.jpg'):
     """Добавление питомца с специальными символами в переменной animal_type.
     Тест не будет пройден если питомец будет добавлен на сайт с спец.символами в поле порода."""
 
@@ -237,12 +237,12 @@ def test_add_pet_with_special_characters_in_variable_animal_type(name='Кот в
 
     # Сверяем полученные данные с нашими ожиданиями
     assert status == 200
-    assert str.isalpha(result['animal_type']), 'Питомец добавлен с недопустимыми спец.символами в поле породы'
+    assert result['animal_type'].isalpha(), 'Питомец добавлен со спец.символами в поле породы'
 
 
 @pytest.mark.xfail
-def test_add_pet_with_numbers_in_variable_name(name='12345678', animal_type='Кот', age='2',
-                                               pet_photo='images/cat1.jpg'):
+def test_add_pet_with_numbers_in_name(name='Кот2', animal_type='Кот', age='2',
+                                      pet_photo='images/cat1.jpg'):
     """Добавление питомца с цифрами вместо букв в переменной name.
     Тест не будет пройден если питомец будет добавлен на сайт с цифрами вместо букв в поле имени."""
 
@@ -257,4 +257,45 @@ def test_add_pet_with_numbers_in_variable_name(name='12345678', animal_type='К�
 
     # Сверяем полученные данные с нашими ожиданиями
     assert status == 200
-    assert name not in result['name'], 'Питомец добавлен на сайт с цифрами вместо букв в поле имени'
+    assert result['name'].isalpha(), 'Питомец добавлен на сайт с цифрами вместо букв в поле имени'
+
+
+@pytest.mark.xfail
+def test_add_new_pet_with_long_name(name=''.join("А" * 256), animal_type='двортерьер',
+                                    age='4', pet_photo='images/cat1.jpg'):
+    """Проверяем что можно добавить питомца с корректными данными"""
+
+    # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
+    pet_photo = os.path.join(os.path.dirname(__file__), pet_photo)
+
+    # Запрашиваем ключ api и сохраняем в переменую auth_key
+    _, auth_key = pf.get_api_key(valid_email, valid_password)
+
+    # Добавляем питомца
+    status, result = pf.add_new_pet(auth_key, name, animal_type, age, pet_photo)
+
+    # Сверяем полученный ответ с ожидаемым результатом
+    assert status == 200
+    assert len(result['name']) <= 255, 'Питомец добавлен на сайт с длинной имени превышающей 255 символов'
+
+
+@pytest.mark.xfail
+def test_update_self_pet_photo_png(pet_photo='images/png-clipart-cat-kitty-creative-cat.png'):
+    """Проверяем возможность обновления фотографии питомца"""
+
+    # Получаем ключ auth_key и список своих питомцев
+    _, auth_key = pf.get_api_key(valid_email, valid_password)
+    _, my_pets = pf.get_list_of_pets(auth_key, "my_pets")
+
+    # Получаем полный путь изображения питомца и сохраняем в переменную pet_photo
+    pet_photo = os.path.join(os.path.dirname(__file__), pet_photo)
+
+    # Еслди список не пустой, то пробуем обновить его имя, тип и возраст
+    if len(my_pets['pets']) > 0:
+        status, result = pf.update_new_pet_photo(auth_key, my_pets['pets'][0]['id'], pet_photo)
+
+        # Проверяем что статус ответа = 200
+        assert status == 200, 'Формат png не поддерживается'
+    else:
+        # если спиок питомцев пустой, то выкидываем исключение с текстом об отсутствии своих питомцев
+        raise Exception("There is no my pets")
