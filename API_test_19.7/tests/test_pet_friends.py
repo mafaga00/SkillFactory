@@ -241,13 +241,8 @@ def test_add_pet_with_special_characters_in_animal_type(name='Кот в сапо
 
 
 @pytest.mark.xfail
-<<<<<<< HEAD
-def test_add_pet_with_numbers_in_name(name='Кот2', animal_type='Кот', age='2',
-                                      pet_photo='images/cat1.jpg'):
-=======
 def test_add_pet_with_numbers_in_variable_name(name='Кот2', animal_type='Кот', age='2',
                                                pet_photo='images/cat1.jpg'):
->>>>>>> c3d47b27aea1042db85fba386f7f8ba84832d6a0
     """Добавление питомца с цифрами вместо букв в переменной name.
     Тест не будет пройден если питомец будет добавлен на сайт с цифрами вместо букв в поле имени."""
 
@@ -262,7 +257,6 @@ def test_add_pet_with_numbers_in_variable_name(name='Кот2', animal_type='Ко
 
     # Сверяем полученные данные с нашими ожиданиями
     assert status == 200
-<<<<<<< HEAD
     assert result['name'].isalpha(), 'Питомец добавлен на сайт с цифрами вместо букв в поле имени'
 
 
@@ -286,7 +280,7 @@ def test_add_new_pet_with_long_name(name=''.join("А" * 256), animal_type='дв�
 
 
 @pytest.mark.xfail
-def test_update_self_pet_photo_png(pet_photo='images/png-clipart-cat-kitty-creative-cat.png'):
+def test_update_self_pet_photo_png(pet_photo='images/png-clipart.png'):
     """Проверяем возможность обновления фотографии питомца"""
 
     # Получаем ключ auth_key и список своих питомцев
@@ -305,6 +299,3 @@ def test_update_self_pet_photo_png(pet_photo='images/png-clipart-cat-kitty-creat
     else:
         # если спиок питомцев пустой, то выкидываем исключение с текстом об отсутствии своих питомцев
         raise Exception("There is no my pets")
-=======
-    assert str.isalpha(result['name']), 'Питомец добавлен на сайт с цифрами вместо букв в поле имени'
->>>>>>> c3d47b27aea1042db85fba386f7f8ba84832d6a0
